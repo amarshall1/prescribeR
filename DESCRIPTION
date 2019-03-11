@@ -1,0 +1,13 @@
+Package: prescribeR
+Type: Package
+Title: Quantify Exposure Based On Routine Prescribing Data
+Version: 0.0.0.9000
+Author: Alex Marshall [aut, cre]
+Maintainer: Alex Marshall <a.marshall.1@research.gla.ac.uk>
+Description: A package containing functions for quantifying drug exposure based
+    on routinely collected prescribing data.
+License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr, lubridate, magrittr
+RoxygenNote: 6.1.0
