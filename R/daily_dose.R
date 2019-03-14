@@ -29,23 +29,22 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{}
-#' \code{}
+#' \code{dd_sum(synth_presc, drug = "CITALOPRAM", threshold = 500, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
 #'
 dd_sum <- function(df, drug, threshold = 1,
                    patient_id_col = "patient_id", drug_id_col = "drug_id",
-                   presc_date_col = "presc_date", dd_disp_col = "dd_disp",
+                   presc_date_col = "presc_date_x", dd_disp_col = "dd_disp",
                    date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dd_disp = dd_disp_col,
-                        dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
+                        date_format = date_format)
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   dd1 <- dd1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::summarise(n_presc = n(),
               total_dds = sum(dd_disp),
-              first_presc = min(presc_date)) %>%
+              first_presc = min(presc_date_x)) %>%
     dplyr::filter(total_dds >= threshold)
   return(dd1)
 }
@@ -84,21 +83,21 @@ dd_sum <- function(df, drug, threshold = 1,
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{}
-#' \code{}
+#' \code{dd_duration(synth_presc, drug = "212000", drug_id_col = "bnf_paragraph", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' \code{dd_duration(synth_presc, drug = "CITALOPRAM", dd_factor = 0.5, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y"}
 #'
 dd_duration <- function(df, drug, dd_factor = 1,
                         patient_id_col = "patient_id", drug_id_col = "drug_id",
-                        presc_date_col = "presc_date", dd_disp_col = "dd_disp",
+                        presc_date_col = "presc_date_x", dd_disp_col = "dd_disp",
                         date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dd_disp = dd_disp_col,
-                        dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
+                        date_format = date_format)
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   dd1 <- dd1 %>%
     dplyr::mutate(duration = floor(dd_disp * dd_factor),
-           end_date = presc_date + floor(dd_disp * dd_factor))
+           end_date = presc_date_x + floor(dd_disp * dd_factor))
 }
 
 
@@ -129,13 +128,13 @@ dd_duration <- function(df, drug, dd_factor = 1,
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{}
+#' \code{calculate_pdd(synth_presc, drug = "ATORVASTATIN", drug_id_col = 'approved_name", qty_disp_col = "quantity_dispensed"}
 #'
 calculate_pdd <- function(df, drug, patient_id_col = "patient_id",
                           drug_id_col = "drug_id", qty_disp_col = "qty_disp",
                           qty_per_day_col = "qty_per_day"){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        qty_disp = qty_disp_col, qty_per_day = qty_per_day_col)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        qty_disp_col = qty_disp_col, qty_per_day_col = qty_per_day_col)
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   dd1 <- dd1 %>%

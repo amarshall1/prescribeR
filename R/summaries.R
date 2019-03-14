@@ -28,21 +28,21 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{presc_data_summary(synth_presc, drug_id_col = "approved_name", date_format = "%d/%m/%Y")}
-#' \code{presc_data_summary(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name", date_format = "%d/%m/%Y")}
+#' \code{presc_data_summary(synth_presc, drug_id_col = "approved_name", presc_date_col = "presc_date", date_format = "%d/%m/%Y")}
+#' \code{presc_data_summary(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name", presc_date_col = "presc_date", date_format = "%d/%m/%Y")}
 #'
 presc_data_summary <- function(df, drug = "*", patient_id_col = "patient_id",
                      drug_id_col = "drug_id", presc_date_col = "presc_date",
                      date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
   summ1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   result <- summ1 %>%
     dplyr::summarise(n_presc = n(),
               n_pat = dplyr::n_distinct(patient_id),
-              date_first = min(presc_date),
-              date_last = max(presc_date))
+              date_first = min(presc_date_x),
+              date_last = max(presc_date_x))
   return(result)
 }
 
@@ -71,7 +71,7 @@ presc_data_summary <- function(df, drug = "*", patient_id_col = "patient_id",
 #' \code{presc_top_drugs(synth_presc, rank = 5, drug_id_col = "bnf_item_code")}
 #'
 presc_top_drugs <- function(df, rank = 10, drug_id_col = "drug_id"){
-  tidy_df <- tidy_presc(df, drug_id = drug_id_col)
+  tidy_df <- tidy_presc(df, drug_id_col = drug_id_col)
   freq <- tidy_df %>%
     dplyr::group_by(drug_id) %>%
     dplyr::summarise(n_presc = n())
@@ -109,7 +109,7 @@ presc_top_drugs <- function(df, rank = 10, drug_id_col = "drug_id"){
 #'
 presc_per_patient <- function(df, drug = "*", patient_id_col = "patient_id",
                      drug_id_col = "drug_id"){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col)
   summ1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   summ2 <- summ1 %>%
@@ -151,22 +151,22 @@ presc_per_patient <- function(df, drug = "*", patient_id_col = "patient_id",
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{presc_by_time(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
-#' \code{presc_by_time(synth_presc, drug = "212000", group = "M", drug_id_col = "bnf_paragraph", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' \code{presc_by_time(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' \code{presc_by_time(synth_presc, drug = "212000", group = "M", drug_id_col = "bnf_paragraph", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
 #'
 presc_by_time <- function(df, drug = "*", group = "Y",
                      drug_id_col = "drug_id", presc_date_col = "presc_date",
                      dd_disp_col = "dd_disp", date_format){
-  tidy_df <- tidy_presc(df, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dd_disp = dd_disp_col,
-                        dates_format = date_format)
+  tidy_df <- tidy_presc(df, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
+                        date_format = date_format)
   summ1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id)) %>%
-    dplyr::mutate(month = lubridate::month(presc_date),
-           year = lubridate::year(presc_date),
-           quarter = lubridate::quarter(presc_date, with_year = TRUE),
-           semester = lubridate::semester(presc_date, with_year = TRUE)) %>%
-    dplyr::select(presc_date, month, year, quarter, semester, dd_disp)
+    dplyr::mutate(month = lubridate::month(presc_date_x),
+           year = lubridate::year(presc_date_x),
+           quarter = lubridate::quarter(presc_date_x, with_year = TRUE),
+           semester = lubridate::semester(presc_date_x, with_year = TRUE)) %>%
+    dplyr::select(presc_date_x, month, year, quarter, semester, dd_disp)
   if(group == "Y"){
     result <- summ1 %>%
       dplyr::group_by(year) %>%

@@ -32,10 +32,10 @@
 # test1 <- uat_fixed(synth_presc_tidy, drug = "CITALOPRAM", date_1 = "01/01/2021", date_format = "%d/%m/%Y")
 # test1 <- uat_fixed(synth_presc_tidy, drug = "CITALOPRAM", date_1 = "01/01/2021", timeframe = 365, forward = FALSE, date_format = "%d/%m/%Y")
 #
-# test1 <- uat_fixed_events(df = synth_presc_tidy, df2 = synth_events_tidy, drug = "SIMVASTATIN")
+# test1 <- uat_fixed_events(df = synth_presc, df2 = synth_events, drug = "SIMVASTATIN")
 # test2 <- uat_fixed_events(df = synth_presc_tidy, df2 = synth_events_tidy, drug = "SIMVASTATIN", timeframe = 180, forward = FALSE)
 
-# test3 <- uat_var_events(synth_presc_tidy, df2 = synth_events_tidy, drug = "SIMVASTATIN", forward = TRUE)
+# test3 <- uat_var_events(synth_presc, df2 = synth_events, drug = "ATORVASTATIN", forward = TRUE)
 #
 # write.csv(test1, "test1.csv")
 # write.csv(test2, "test2.csv")

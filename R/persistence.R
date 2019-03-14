@@ -32,31 +32,31 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{refill_gap(synth_presc, drug = "SIMVASTATIN", gap = 30, drug_id_col = "approved_name", date_format = "%d/%m/%Y")}
-#' \code{refill_gap(synth_presc, drug = "103050", gap = 30, threshold = 60, drug_id_col = "bnf_paragraph", date_format = "%d/%m/%Y")}
+#' \code{refill_gap(synth_presc, drug = "SIMVASTATIN", gap = 30, drug_id_col = "approved_name", presc_date_col = "presc_date", date_format = "%d/%m/%Y")}
+#' \code{refill_gap(synth_presc, drug = "103050", gap = 30, threshold = 60, drug_id_col = "bnf_paragraph", presc_date_col = "presc_date", date_format = "%d/%m/%Y")}
 #'
 refill_gap <- function(df, drug, gap, threshold = 0,
                        patient_id_col = "patient_id", drug_id_col = "drug_id",
-                       presc_date_col = "presc_date", date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
+                       presc_date_col = "presc_date_x", date_format){
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
   pers1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   pers1 <- pers1 %>%
     dplyr::group_by(patient_id) %>%
-    dplyr::arrange(patient_id, presc_date) %>%
-    dplyr::mutate(difference = c(0, diff(presc_date)))
+    dplyr::arrange(patient_id, presc_date_x) %>%
+    dplyr::mutate(difference = c(0, diff(presc_date_x)))
   pers1 <- dplyr::mutate(pers1, terminated = ifelse(difference > gap, 1, 0))
   pers1 <- pers1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::mutate(period = cumsum(terminated)) %>%
-    dplyr::select(patient_id, presc_date, difference, terminated, period)
+    dplyr::select(patient_id, presc_date_x, difference, terminated, period)
   pers1 <- pers1 %>%
     dplyr::group_by(patient_id, period) %>%
-    dplyr::summarise(first_presc = min(presc_date),
-              last_presc = max(presc_date),
+    dplyr::summarise(first_presc = min(presc_date_x),
+              last_presc = max(presc_date_x),
               n_presc = n(),
-              length_of_exposure = (max(presc_date) - min(presc_date)) + gap)
+              length_of_exposure = (max(presc_date_x) - min(presc_date_x)) + gap)
   if(threshold == 0){
     return(pers1)
   }
@@ -114,49 +114,49 @@ refill_gap <- function(df, drug, gap, threshold = 0,
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{refill_gap_dd(refill_gap_dd(synth_presc, drug = "OMEPRAZOLE", gap = 30, drug_id_col = "approved_name", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y"))}
-#' \code{refill_gap_dd(synth_presc, drug = "CITALOPRAM", gap = 30, dd_factor = 1, threshold = 60, stockpile = TRUE, drug_id_col = "approved_name", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' \code{refill_gap_dd(synth_presc, drug = "OMEPRAZOLE", gap = 30, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' \code{refill_gap_dd(synth_presc, drug = "CITALOPRAM", gap = 30, dd_factor = 1, threshold = 60, stockpile = TRUE, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
 #'
 refill_gap_dd <- function(df, drug, gap, dd_factor = 1,
                           threshold = 0, stockpile = FALSE,
                           patient_id_col = "patient_id", drug_id_col = "drug_id",
                           presc_date_col = "presc_date", dd_disp_col = "dd_disp",
                           date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dd_disp = dd_disp_col,
-                        dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
+                        date_format = date_format)
   pers1 <- tidy_df %>%
     dd_duration(drug = drug, dd_factor = dd_factor)
   if(stockpile == FALSE){
     pers1 <- pers1 %>%
       dplyr::group_by(patient_id) %>%
-      dplyr::arrange(patient_id, presc_date) %>%
-      dplyr::mutate(difference = presc_date - lag(end_date))
+      dplyr::arrange(patient_id, presc_date_x) %>%
+      dplyr::mutate(difference = presc_date_x - lag(end_date))
     pers1$difference[is.na(pers1$difference)] <- 0
   } else if(stockpile == TRUE){
     pers1 <- pers1 %>%
       dplyr::group_by(patient_id) %>%
-      dplyr::arrange(patient_id, presc_date) %>%
-      dplyr::mutate(stockpile = ifelse((lag(end_date) > presc_date),
-                                       (lag(end_date) - presc_date), 0))
+      dplyr::arrange(patient_id, presc_date_x) %>%
+      dplyr::mutate(stockpile = ifelse((lag(end_date) > presc_date_x),
+                                       (lag(end_date) - presc_date_x), 0))
     pers1$stockpile[is.na(pers1$stockpile)] <- 0
     pers1 <- pers1 %>%
-      dplyr::mutate(end_date = presc_date + (duration + stockpile)) %>%
-      dplyr::mutate(difference = presc_date - lag(end_date))
+      dplyr::mutate(end_date = presc_date_x + (duration + stockpile)) %>%
+      dplyr::mutate(difference = presc_date_x - lag(end_date))
     pers1$difference[is.na(pers1$difference)] <- 0
   }
   pers1 <- dplyr::mutate(pers1, terminated = ifelse(difference > gap, 1, 0))
   pers1 <- pers1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::mutate(period = cumsum(terminated)) %>%
-    dplyr::select(patient_id, presc_date, end_date, dd_disp, difference, terminated, period)
+    dplyr::select(patient_id, presc_date_x, end_date, dd_disp, difference, terminated, period)
   pers1 <- pers1 %>%
     dplyr::group_by(patient_id, period) %>%
-    dplyr::summarise(first_presc = min(presc_date),
-              last_presc = max(presc_date),
+    dplyr::summarise(first_presc = min(presc_date_x),
+              last_presc = max(presc_date_x),
               end_date = max(end_date + gap),
               n_presc = n(),
-              length_of_exposure = (max(end_date) - min(presc_date)) + gap)
+              length_of_exposure = (max(end_date) - min(presc_date_x)) + gap)
   if(threshold == 0){
     return(pers1)
   } else if(threshold != 0){

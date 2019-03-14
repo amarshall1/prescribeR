@@ -31,19 +31,20 @@
 #' @examples
 #' \code{ever_use(synth_presc, drug = "CITALOPRAM", drug_id_col = "approved_name")}
 #' \code{ever_use(synth_presc, drug = "212000", summary = TRUE, threshold = 10,
-#' drug_id_col = "bnf_paragraph", date_format = "%d/%m/%Y")}
+#' drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
+#' date_format = "%d/%m/%Y")}
 #'
 
 ever_use <- function(df, drug, summary = FALSE, threshold = 1,
                      patient_id_col = "patient_id", drug_id_col = "drug_id",
-                     presc_date_col = "presc_date", date_format){
+                     presc_date_col = "presc_date_x", date_format){
   tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
+                        presc_date = presc_date_col, date_format = date_format)
   ever1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id)) %>%
     dplyr::group_by(patient_id) %>%
     dplyr::summarise(n_presc = n(),
-              first_presc = min(presc_date)) %>%
+              first_presc = min(presc_date_x)) %>%
     dplyr::filter(n_presc >= threshold)
   if(summary == TRUE){
     ever_result <- ever1

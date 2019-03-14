@@ -39,31 +39,31 @@
 #'
 uat_fixed <- function(df, drug, date_1, timeframe = 0, forward = TRUE,
                       patient_id_col = "patient_id", drug_id_col = "drug_id",
-                      presc_date_col = "presc_date", date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
+                      presc_date_col = "presc_date_x", date_format){
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
   uat1 <- tidy_df %>%
     dplyr::filter(grepl(drug, drug_id))
   date_1 <- as.Date(date_1, format = date_format)
   if((forward == TRUE) && (timeframe == 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date >= date_1)
+      dplyr::filter(presc_date_x >= date_1)
   } else if ((forward == FALSE) && (timeframe == 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(date_1 >= presc_date)
+      dplyr::filter(date_1 >= presc_date_x)
   } else if ((forward == TRUE) && (timeframe > 0)){
     date_2 <- date_1 + timeframe
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date >= date_1 & presc_date <=date_2)
+      dplyr::filter(presc_date_x >= date_1 & presc_date_x <=date_2)
   } else if ((forward == FALSE) && (timeframe > 0)){
     date_2 <- date_1 - timeframe
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date <= date_1 & presc_date >= date_2)
+      dplyr::filter(presc_date_x <= date_1 & presc_date_x >= date_2)
   }
   uat_result <- uat1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::summarise(n_presc = n(),
-              first_presc = min(presc_date))
+              first_presc = min(presc_date_x))
   return(uat_result)
 }
 
@@ -109,39 +109,39 @@ uat_fixed <- function(df, drug, date_1, timeframe = 0, forward = TRUE,
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{}
-#' \code{}
+#' \code{uat_fixed_events(df = synth_presc, df2 = synth_events, drug = "SIMVASTATIN", forward = TRUE, drug_id_col = "approved_name", presc_date_col = "presc_date", date_formate = "%d/%m/%Y")}
+#'
 #'
 uat_fixed_events <- function(df, df2, drug, timeframe = 0, forward = TRUE,
                              patient_id_col = "patient_id", drug_id_col = "drug_id",
-                             presc_date_col = "presc_date",
+                             presc_date_col = "presc_date_x",
                              ev_date_col = "ev_date_1", ev_code_col = NULL,
                              date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
-  tidy_ev <- tidy_events(df2, patient_id = patient_id_col, ev_date_1 = ev_date_col,
-                         ev_code_1 = ev_code_col, dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
+  tidy_ev <- tidy_events(df2, patient_id_col = patient_id_col, ev_date_1_col = ev_date_col,
+                         ev_code_1_col = ev_code_col, date_format = date_format)
   uat1 <- dplyr::left_join(tidy_df, tidy_ev, by = "patient_id")
   uat1 <- dplyr::filter(uat1, !is.na(ev_date_1))
   uat1 <- uat1 %>%
     dplyr::filter(grepl(drug, drug_id))
   if((forward == TRUE) && (timeframe == 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date >= ev_date_1)
+      dplyr::filter(presc_date_x >= ev_date_1)
   } else if ((forward == FALSE) && (timeframe == 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(ev_date_1 >= presc_date)
+      dplyr::filter(ev_date_1 >= presc_date_x)
   } else if ((forward == TRUE) && (timeframe > 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date >= ev_date_1 & ev_date_1 <= ev_date_1 + timeframe)
+      dplyr::filter(presc_date_x >= ev_date_1 & presc_date_x <= ev_date_1 + timeframe)
   } else if ((forward == FALSE) && (timeframe > 0)){
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date <= ev_date_1 & presc_date >= ev_date_1 - timeframe)
+      dplyr::filter(presc_date_x <= ev_date_1 & presc_date_x >= ev_date_1 - timeframe)
   }
   uat_result <- uat1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::summarise(n_presc = n(),
-              first_presc = min(presc_date))
+              first_presc = min(presc_date_x))
   return(uat_result)
 }
 
@@ -185,34 +185,34 @@ uat_fixed_events <- function(df, df2, drug, timeframe = 0, forward = TRUE,
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' \code{}
+#' \code{uat_var_events(synth_presc, df2 = synth_events, drug = "ATORVASTATIN", drug_id_col = "approved_name", presc_date_col = "presc_date", forward = TRUE)}
 #'
 uat_var_events <- function(df, df2, drug, forward = TRUE,
                            patient_id_col = "patient_id", drug_id_col = "drug_id",
-                           presc_date_col = "presc_date",
+                           presc_date_col = "presc_date_x",
                            ev_date_1_col = "ev_date_1", ev_code_1_col = NULL,
                            ev_date_2_col = "ev_date_2", ev_code_2_col = NULL,
                            date_format){
-  tidy_df <- tidy_presc(df, patient_id = patient_id_col, drug_id = drug_id_col,
-                        presc_date = presc_date_col, dates_format = date_format)
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
   tidy_ev <- tidy_events(df2, patient_id = patient_id_col,
-                         ev_date_1 = ev_date_1_col, ev_code_1 = ev_code_1_col,
-                         ev_date_2 = ev_date_2_col, ev_code_2 = ev_code_2_col,
-                         dates_format = date_format)
+                         ev_date_1_col = ev_date_1_col, ev_code_1_col = ev_code_1_col,
+                         ev_date_2_col = ev_date_2_col, ev_code_2_col = ev_code_2_col,
+                         date_format = date_format)
     uat1 <- dplyr::left_join(tidy_df, tidy_ev, by = "patient_id")
   uat1 <- dplyr::filter(uat1, !is.na(ev_date_1) & !is.na(ev_date_2))
   uat1 <- uat1 %>%
     dplyr::filter(grepl(drug, drug_id))
   if(forward == TRUE){
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date > ev_date_1 & presc_date < ev_date_2)
+      dplyr::filter(presc_date_x > ev_date_1 & presc_date_x < ev_date_2)
   } else {
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date > ev_date_2 & presc_date < ev_date_1)
+      dplyr::filter(presc_date_x > ev_date_2 & presc_date_x < ev_date_1)
   }
   uat_result <- uat1 %>%
     dplyr::group_by(patient_id) %>%
     dplyr::summarise(n_presc = n(),
-              first_presc = min(presc_date))
+              first_presc = min(presc_date_x))
   return(uat_result)
 }
