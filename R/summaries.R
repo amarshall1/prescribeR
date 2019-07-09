@@ -70,9 +70,11 @@ presc_data_summary <- function(df, drug = "*", patient_id_col = "patient_id",
 #' \code{presc_top_drugs(synth_presc, drug_id_col = "approved_name")}
 #' \code{presc_top_drugs(synth_presc, rank = 5, drug_id_col = "bnf_item_code")}
 #'
-presc_top_drugs <- function(df, rank = 10, drug_id_col = "drug_id"){
+presc_top_drugs <- function(df, drug = "*", rank = 10, drug_id_col = "drug_id"){
   tidy_df <- tidy_presc(df, drug_id_col = drug_id_col)
   freq <- tidy_df %>%
+    dplyr::filter(grepl(drug, drug_id))
+  freq <- freq %>%
     dplyr::group_by(drug_id) %>%
     dplyr::summarise(n_presc = n())
   freq <- freq %>%

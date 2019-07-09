@@ -54,7 +54,7 @@ tidy_presc <- function(df, patient_id_col = NULL, drug_id_col = NULL,
   if(!is.null(presc_date_col)){
     df1 <- df1 %>%
       dplyr::rename(presc_date_x = presc_date_col)
-    df1$presc_date <- as.Date(df1$presc_date, format = date_format)
+    df1$presc_date_x <- as.Date(df1$presc_date_x, format = date_format)
   }
   if(!is.null(dd_disp_col)){
     df1 <- df1 %>%

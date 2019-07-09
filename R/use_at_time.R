@@ -54,7 +54,7 @@ uat_fixed <- function(df, drug, date_1, timeframe = 0, forward = TRUE,
   } else if ((forward == TRUE) && (timeframe > 0)){
     date_2 <- date_1 + timeframe
     uat1 <- uat1 %>%
-      dplyr::filter(presc_date_x >= date_1 & presc_date_x <=date_2)
+      dplyr::filter(presc_date_x >= date_1 & presc_date_x <= date_2)
   } else if ((forward == FALSE) && (timeframe > 0)){
     date_2 <- date_1 - timeframe
     uat1 <- uat1 %>%
@@ -216,3 +216,73 @@ uat_var_events <- function(df, df2, drug, forward = TRUE,
               first_presc = min(presc_date_x))
   return(uat_result)
 }
+
+
+#' Determine New vs. Existing Use of a Drug of Interest
+#'
+#' @param df a data frame containing prescription records to be analysed -
+#'   records must contain at least a patient ID, drug ID and prescription date
+#' @param drug a string containing the ID of the drug of interest to be matched
+#' @param start_date a string containing the date to start follow-up - any
+#'   prescriptions on or after this date will be included. If NULL, all
+#'   prescriptions will be included
+#' @param timeframe a number representing the length, in days, of the timeframe
+#'   before the patients' first prescription to check for previous prescriptions
+#' @param return_all a logical, if TRUE the function will return all patients
+#'   with at least 1 prescription for the drug of interest, along with a flag
+#'   indicating whether or not the are new users
+#' @param patient_id_col a string, the name of the column in \code{df}
+#'   containing the patient IDs
+#' @param drug_id_col a string, the name of the column in \code{df} containing
+#'   the drug IDs
+#' @param presc_date_col a string, the name of the column in \code{df}
+#'   containing the prescription date
+#' @param date_format
+#'
+#' @return A data frame containing patient IDs, the date of the first
+#'   prescription and number of prescriptions during the follow up period, and
+#'   if requested the flag specifying whether or not the patient is a new user
+#'   of the drug of interest
+#'
+#' @export
+#'
+#' @importFrom magrittr %>%
+#'
+#' @examples
+uat_new_users <- function(df, drug, start_date = NULL, timeframe = 0, return_all = TRUE,
+                          patient_id_col = "patient_id", drug_id_col = "drug_id",
+                          presc_date_col = "presc_date_x", date_format){
+  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+                        presc_date_col = presc_date_col, date_format = date_format)
+  tidy_df <- tidy_df %>%
+    dplyr::filter(grepl(drug, drug_id))
+  if(!is.null(start_date)){
+    start_date <- as.Date(start_date, format = date_format)
+    uat1 <- tidy_df %>%
+      dplyr::filter(presc_date_x >= start_date)
+  } else {
+    uat1 <- tidy_df
+  }
+  uat1 <- uat1 %>%
+    dplyr::group_by(patient_id) %>%
+    dplyr::summarise(first_presc = min(presc_date_x),
+                     n_presc = n())
+  uat2 <- dplyr::select(uat1, patient_id, first_presc)
+  uat2 <- dplyr::left_join(tidy_df, uat2, by = "patient_id")
+  uat2 <- uat2 %>%
+    dplyr::filter(presc_date_x >= first_presc - timeframe & presc_date_x < first_presc)
+  uat2 <- uat2 %>%
+    dplyr::select(patient_id) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(new_user = 0)
+  uat1 <- dplyr::left_join(uat1, uat2, by = "patient_id")
+  uat1$new_user[(is.na(uat1$new_user))] <- 1
+  if(return_all == FALSE){
+    uat1 <- uat1 %>%
+      filter(new_user == 1) %>%
+      select(patient_id, first_presc, n_presc)
+  }
+  return(uat1)
+}
+
+
