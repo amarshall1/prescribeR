@@ -4,30 +4,23 @@
 \alias{tidy_events}
 \title{Standardise Medical Event Dates}
 \usage{
-tidy_events(df, patient_id, ev_date_1, ev_code_1 = NULL,
-  ev_date_2 = NULL, ev_code_2 = NULL, dates_format)
+tidy_events(df, patient_id_col, ev_date_1_col, ev_date_2_col = NULL,
+  date_format)
 }
 \arguments{
 \item{df}{a data frame containing at least patient ID's and one corresponding
 medical event date}
 
-\item{patient_id}{a string, the name of the column in df containing the
+\item{patient_id_col}{a string, the name of the column in df containing the
 patient IDs}
 
-\item{ev_date_1}{a string, the name of the column containing the first event
-dates}
+\item{ev_date_1_col}{a string, the name of the column containing the first
+event dates}
 
-\item{ev_code_1}{a string, the name of the column containing the medical code
-for the first event}
+\item{ev_date_2_col}{a string, the name of the column containing the second
+event dates if present}
 
-\item{ev_date_2}{a string, the name of the column containing the second event
-dates if present}
-
-\item{ev_code_2}{a string, the name of the column containing the medical code
-for the second event}
-
-\item{dates_format}{a string, giving the format of the dates used in
-\code{df}}
+\item{date_format}{a string, giving the format of the dates used in \code{df}}
 }
 \value{
 a data frame with standardised field names and formats
@@ -41,6 +34,7 @@ of arguments which need to be passed to other functions as these standardised
 values are inluded as the default values in their code.
 }
 \examples{
-
+tidy_ev <- tidy_events(synth_events, patient_id_col = "patient_id",
+ev_date_1_col = "event_1", date_format = "\%Y-\%m-\%d")
 
 }

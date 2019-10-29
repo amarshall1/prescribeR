@@ -29,7 +29,7 @@ patient within the data - either for all drugs, or for those matching the
 specified ID
 }
 \examples{
-\\code{presc_per_patient(synth_presc, drug_id_col = "approved_name")}
-\\code{presc_per_patient(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name")}
+presc_per_patient(synth_presc, drug_id_col = "approved_name")
+presc_per_patient(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name")
 
 }

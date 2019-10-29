@@ -4,14 +4,16 @@
 \alias{refill_gap}
 \title{Determine Drug Persistence with Refill Gap Only}
 \usage{
-refill_gap(df, drug, gap, threshold = 0, patient_id_col = "patient_id",
-  drug_id_col = "drug_id", presc_date_col = "presc_date", date_format)
+refill_gap(df, drug, gap, threshold = 0, summary = FALSE,
+  patient_id_col = "patient_id", drug_id_col = "drug_id",
+  presc_date_col = "presc_date_x", date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records  to be analysed -
 records must contain at least a paitent ID, drug ID and a prescription date}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{gap}{a number, the length of the allowable gap in days between two
 prescriptions before the patient is considered to have discontinued use of
@@ -19,6 +21,9 @@ the drug}
 
 \item{threshold}{a number, the minimum length of period of exposure, in days,
 to be included in the results}
+
+\item{summary}{a logical, if true the function will return a summary of all
+exposure periods instead of the individual periods}
 
 \item{patient_id_col}{a string, the name of the column in \code{df}
 containing the patient IDs}
@@ -45,7 +50,11 @@ returns patient ID's and periods of exposure that are over the selected
 minimum length.
 }
 \examples{
-\\code{refill_gap(synth_presc, drug = "SIMVASTATIN", gap = 30, drug_id_col = "approved_name", date_format = "\%d/\%m/\%Y")}
-\\code{refill_gap(synth_presc, drug = "103050", gap = 30, threshold = 60, drug_id_col = "bnf_paragraph", date_format = "\%d/\%m/\%Y")}
+refill_gap(synth_presc, drug = "SIMVASTATIN", gap = 30,
+drug_id_col = "approved_name", presc_date_col = "presc_date",
+date_format = "\%d/\%m/\%Y")
+refill_gap(synth_presc, drug = "103050", gap = 30, threshold = 60, summary = TRUE,
+drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
+date_format = "\%d/\%m/\%Y")
 
 }

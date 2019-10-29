@@ -4,31 +4,32 @@
 \alias{tidy_presc}
 \title{Standardise Prescribing Data Field Names and Formats}
 \usage{
-tidy_presc(df, patient_id = NULL, drug_id = NULL, presc_date = NULL,
-  dd_disp = NULL, qty_disp = NULL, qty_per_day = NULL, dates_format)
+tidy_presc(df, patient_id_col = NULL, drug_id_col = NULL,
+  presc_date_col = NULL, dd_disp_col = NULL, qty_disp_col = NULL,
+  qty_per_day_col = NULL, date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records}
 
-\item{patient_id}{a string, the name of the column in \code{df} containing
+\item{patient_id_col}{a string, the name of the column in \code{df} containing
 the patient IDs}
 
-\item{drug_id}{a string, the name of the column in \code{df} containing the
+\item{drug_id_col}{a string, the name of the column in \code{df} containing the
 drug IDs}
 
-\item{presc_date}{a string, the name of the column in \code{df} containing
+\item{presc_date_col}{a string, the name of the column in \code{df} containing
 the prescption date}
 
-\item{dd_disp}{a string, the name of the column in \code{df} containing the
+\item{dd_disp_col}{a string, the name of the column in \code{df} containing the
 number of daily doses dispensed}
 
-\item{qty_disp}{a string, the name of the column in \code{df} containing the
+\item{qty_disp_col}{a string, the name of the column in \code{df} containing the
 quantity of drug dispensed}
 
-\item{qty_per_day}{a string, the name of the column in \code{df} containing
+\item{qty_per_day_col}{a string, the name of the column in \code{df} containing
 the quantity of drug to be taken per day}
 
-\item{dates_format}{a string, the format of the dates in \code{df}}
+\item{date_format}{a string, the format of the dates in \code{df}}
 }
 \value{
 a data frame with standardised field names and formats
@@ -42,12 +43,12 @@ passed to other functions as these standardised values are inluded as the
 default values in their code.
 }
 \examples{
-\\code{tidy_synth <- tidy_presc(df = synth_presc, drug_id = "approved_name",
- dd_disp = "ddd_dispensed", qty_disp = "qty_dispensed",
- dates_format = "\%d/\%m/\%Y")}
-\\code{tidy_synth <- tidy_presc(synth_presc, patient_id = "patient_id",
-drug_id = "approved_name", presc_date = "presc_date",
-dd_disp = "ddd_dispensed", qty_disp = "qty_dispensed",
-qty_per_day = "qty_per_day", dates_format = "\%d/\%m/\%Y")}
+tidy_synth <- tidy_presc(df = synth_presc, drug_id_col = "approved_name",
+ dd_disp_col = "ddd_dispensed", qty_disp_col = "qty_dispensed",
+ date_format = "\%Y-\%m-\%d")
+tidy_synth <- tidy_presc(synth_presc, patient_id_col = "patient_id",
+drug_id_col = "approved_name", presc_date_col = "presc_date",
+dd_disp_col = "ddd_dispensed", qty_disp_col = "qty_dispensed",
+qty_per_day_col = "qty_per_day")
 
 }

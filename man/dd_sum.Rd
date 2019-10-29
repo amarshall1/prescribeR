@@ -5,7 +5,7 @@
 \title{Calculate Cumulative Daily Dose}
 \usage{
 dd_sum(df, drug, threshold = 1, patient_id_col = "patient_id",
-  drug_id_col = "drug_id", presc_date_col = "presc_date",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
   dd_disp_col = "dd_disp", date_format)
 }
 \arguments{
@@ -13,7 +13,8 @@ dd_sum(df, drug, threshold = 1, patient_id_col = "patient_id",
 records must contain at least a paitent ID, drug ID, a prescription date
 and the number of daily doses disepnsed}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{threshold}{a number representing the minimum number of daily doses that
 must be present for the patient to be considered exposed}
@@ -43,7 +44,8 @@ dispensed for each patient. Results can be limited to only patients who have
 been prescribed more than a desired threshold number of daily doses.
 }
 \examples{
-\\code{}
-\\code{}
+dd_sum(synth_presc, drug = "CITALOPRAM", threshold = 500,
+drug_id_col = "approved_name", presc_date_col = "presc_date",
+dd_disp_col = "ddd_dispensed", date_format = "\%Y-\%m-\%d")
 
 }

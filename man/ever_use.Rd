@@ -4,21 +4,30 @@
 \alias{ever_use}
 \title{Determine Ever Use of Drug(s) of Interest}
 \usage{
-ever_use(df, drug, summary = FALSE, threshold = 1,
-  patient_id_col = "patient_id", drug_id_col = "drug_id",
-  presc_date_col = "presc_date", date_format)
+ever_use(df, drug, flatten = FALSE, threshold = 1, summary = FALSE,
+  return_all = FALSE, patient_id_col = "patient_id",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
+  date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
 records must contain at least a paitent ID, drug ID and a prescription date}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
+
+\item{flatten}{logical, if TRUE the function will only count one record/
+prescription per drug ID per date}
+
+\item{threshold}{a number representing the minimum number of prescriptions
+that must be present for the patient to be considered exposed}
 
 \item{summary}{logical, if TRUE the corresponding prescription counts and
 first prescription dates will be returned alongside patient IDs}
 
-\item{threshold}{a number representing the minimum number of prescriptions
-that must be present for the patient to be considered exposed}
+\item{return_all}{logical, if TRUE the output will contain all patients with
+a flag indicating if they were exposed or not, and if FALSE will only
+return data for patients who meet the exposure threshold}
 
 \item{patient_id_col}{a string, the name of the column in \code{df}
 containing the patient IDs}
@@ -43,8 +52,10 @@ matching the drug identifier of interest, with option to also provide counts
 and dates of the first matching prescription.
 }
 \examples{
-\\code{ever_use(synth_presc, drug = "CITALOPRAM", drug_id_col = "approved_name")}
-\\code{ever_use(synth_presc, drug = "212000", summary = TRUE, threshold = 10,
-drug_id_col = "bnf_paragraph", date_format = "\%d/\%m/\%Y")}
+ever_use(synth_presc, drug = "CITALOPRAM", drug_id_col = "approved_name",
+presc_date_col = "presc_date")
+ever_use(synth_presc, drug = "212000", summary = TRUE, threshold = 10,
+flatten = TRUE, drug_id_col = "bnf_paragraph",
+presc_date_col = "presc_date", date_format = "\%Y-\%m-\%d")
 
 }

@@ -5,31 +5,32 @@
 \title{Calculate Prescription Durations}
 \usage{
 dd_duration(df, drug, dd_factor = 1, patient_id_col = "patient_id",
-  drug_id_col = "drug_id", presc_date_col = "presc_date",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
   dd_disp_col = "dd_disp", date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records  to be analysed -
 records must contain at least a paitent ID, drug ID, a prescription date}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{dd_factor}{a number, a multiplication factor applied to the dd_disp
 field to calculate prescription duration}
 
-\item{date_format}{a string, the format of the dates in \code{df}}
-
-\item{patient_id}{a string, the name of the column in \code{df} containing
+\item{patient_id_col}{a string, the name of the column in \code{df} containing
 the patient IDs}
 
-\item{drug_id}{a string, the name of the column in \code{df} containing the
+\item{drug_id_col}{a string, the name of the column in \code{df} containing the
 drug IDs}
 
-\item{presc_date}{a string, the name of the column in \code{df} containing
+\item{presc_date_col}{a string, the name of the column in \code{df} containing
 the prescption date}
 
-\item{dd_disp}{a string, the name of the column in \code{df} containing the
+\item{dd_disp_col}{a string, the name of the column in \code{df} containing the
 number of daily doses dispensed}
+
+\item{date_format}{a string, the format of the dates in \code{df}}
 }
 \value{
 a modified version of \code{df} with records for the drug of interest
@@ -42,7 +43,8 @@ for use in cases where, for example an assumption of less or more than 1 DDD
 per day is required
 }
 \examples{
-\\code{}
-\\code{}
+dd_duration(synth_presc, drug = "212000",
+drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
+dd_disp_col = "ddd_dispensed", date_format = "\%Y-\%m-\%d")
 
 }

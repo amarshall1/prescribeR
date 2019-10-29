@@ -7,7 +7,8 @@
 #' @param df a data frame containing prescribing records  to be analysed -
 #'   records must contain at least a paitent ID, drug ID, a prescription date
 #'   and the number of daily doses disepnsed
-#' @param drug a string corresponding to a drug identifier to be matched
+#' @param drug a string containing a drug ID to be used to limit the prescribing
+#'   data to the drug(s) of interest, accepts regular expressions
 #' @param threshold a number representing the minimum number of daily doses that
 #'   must be present for the patient to be considered exposed
 #' @param patient_id_col a string, the name of the column in \code{df} containing
@@ -27,9 +28,12 @@
 #' @export
 #'
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #' @examples
-#' \code{dd_sum(synth_presc, drug = "CITALOPRAM", threshold = 500, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
+#' dd_sum(synth_presc, drug = "CITALOPRAM", threshold = 500,
+#' drug_id_col = "approved_name", presc_date_col = "presc_date",
+#' dd_disp_col = "ddd_dispensed", date_format = "%Y-%m-%d")
 #'
 dd_sum <- function(df, drug, threshold = 1,
                    patient_id_col = "patient_id", drug_id_col = "drug_id",
@@ -39,13 +43,13 @@ dd_sum <- function(df, drug, threshold = 1,
                         presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
                         date_format = date_format)
   dd1 <- tidy_df %>%
-    dplyr::filter(grepl(drug, drug_id))
+    dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
-    dplyr::group_by(patient_id) %>%
-    dplyr::summarise(n_presc = n(),
-              total_dds = sum(dd_disp),
-              first_presc = min(presc_date_x)) %>%
-    dplyr::filter(total_dds >= threshold)
+    dplyr::group_by(.data$patient_id) %>%
+    dplyr::summarise(n_presc = dplyr::n(),
+              total_dds = sum(.data$dd_disp),
+              first_presc = min(.data$presc_date_x)) %>%
+    dplyr::filter(.data$total_dds >= threshold)
   return(dd1)
 }
 
@@ -62,16 +66,17 @@ dd_sum <- function(df, drug, threshold = 1,
 #'
 #' @param df a data frame containing prescribing records  to be analysed -
 #'   records must contain at least a paitent ID, drug ID, a prescription date
-#' @param drug a string corresponding to a drug identifier to be matched
+#' @param drug a string containing a drug ID to be used to limit the prescribing
+#'   data to the drug(s) of interest, accepts regular expressions
 #' @param dd_factor a number, a multiplication factor applied to the dd_disp
 #'   field to calculate prescription duration
-#' @param patient_id a string, the name of the column in \code{df} containing
+#' @param patient_id_col a string, the name of the column in \code{df} containing
 #'   the patient IDs
-#' @param drug_id a string, the name of the column in \code{df} containing the
+#' @param drug_id_col a string, the name of the column in \code{df} containing the
 #'   drug IDs
-#' @param presc_date a string, the name of the column in \code{df} containing
+#' @param presc_date_col a string, the name of the column in \code{df} containing
 #'   the prescption date
-#' @param dd_disp a string, the name of the column in \code{df} containing the
+#' @param dd_disp_col a string, the name of the column in \code{df} containing the
 #'   number of daily doses dispensed
 #' @param date_format a string, the format of the dates in \code{df}
 #'
@@ -81,10 +86,12 @@ dd_sum <- function(df, drug, threshold = 1,
 #' @export
 #'
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #' @examples
-#' \code{dd_duration(synth_presc, drug = "212000", drug_id_col = "bnf_paragraph", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
-#' \code{dd_duration(synth_presc, drug = "CITALOPRAM", dd_factor = 0.5, drug_id_col = "approved_name", presc_date_col = "presc_date", dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y"}
+#' dd_duration(synth_presc, drug = "212000",
+#' drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
+#' dd_disp_col = "ddd_dispensed", date_format = "%Y-%m-%d")
 #'
 dd_duration <- function(df, drug, dd_factor = 1,
                         patient_id_col = "patient_id", drug_id_col = "drug_id",
@@ -94,10 +101,10 @@ dd_duration <- function(df, drug, dd_factor = 1,
                         presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
                         date_format = date_format)
   dd1 <- tidy_df %>%
-    dplyr::filter(grepl(drug, drug_id))
+    dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
-    dplyr::mutate(duration = floor(dd_disp * dd_factor),
-           end_date = presc_date_x + floor(dd_disp * dd_factor))
+    dplyr::mutate(duration = floor(.data$dd_disp * dd_factor),
+           end_date = .data$presc_date_x + floor(.data$dd_disp * dd_factor))
 }
 
 
@@ -111,14 +118,14 @@ dd_duration <- function(df, drug, dd_factor = 1,
 #' @param df a data frame containing prescribing records  to be analysed -
 #'   records must contain at least a paitent ID, drug ID, a quantity dispensed
 #'   and a quantity per day instruction
-#' @param drug a string corresponding to a drug identifier to be matched
-
-#' @param drug_id_col a string, the name of the column in \code{df} containing the
-#'   drug IDs
-#' @param qty_disp_col a string, the name of the column in \code{df} containing the
-#'   quantity of drug dispensed
-#' @param qty_per_day_col a string, the name of the column in \code{df} containing
-#'   the quantity of drug to be taken per day
+#' @param drug a string containing a drug ID to be used to limit the prescribing
+#'   data to the drug(s) of interest, accepts regular expressions
+#' @param drug_id_col a string, the name of the column in \code{df} containing
+#'   the drug IDs
+#' @param qty_disp_col a string, the name of the column in \code{df} containing
+#'   the quantity of drug dispensed
+#' @param qty_per_day_col a string, the name of the column in \code{df}
+#'   containing the quantity of drug to be taken per day
 #'
 #' @return a modified version of \code{df} containing records for the drug of
 #'   interest with the \code{dd_disp} field added
@@ -126,19 +133,21 @@ dd_duration <- function(df, drug, dd_factor = 1,
 #' @export
 #'
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #' @examples
-#' \code{calculate_pdd(synth_presc, drug = "ATORVASTATIN", drug_id_col = 'approved_name", qty_disp_col = "quantity_dispensed"}
+#' calculate_pdd(synth_presc, drug = "ATORVASTATIN",
+#' drug_id_col = "approved_name", qty_disp_col = "qty_dispensed")
 #'
-calculate_pdd <- function(df, drug, patient_id_col = "patient_id",
+calculate_pdd <- function(df, drug,
                           drug_id_col = "drug_id", qty_disp_col = "qty_disp",
                           qty_per_day_col = "qty_per_day"){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
+  tidy_df <- tidy_presc(df, drug_id_col = drug_id_col,
                         qty_disp_col = qty_disp_col, qty_per_day_col = qty_per_day_col)
   dd1 <- tidy_df %>%
-    dplyr::filter(grepl(drug, drug_id))
+    dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
-    dplyr::mutate(pdd_disp = qty_disp/qty_per_day)
+    dplyr::mutate(pdd_disp = .data$qty_disp/.data$qty_per_day)
   return(dd1)
 }
 

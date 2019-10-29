@@ -6,8 +6,8 @@
 \usage{
 uat_fixed_events(df, df2, drug, timeframe = 0, forward = TRUE,
   patient_id_col = "patient_id", drug_id_col = "drug_id",
-  presc_date_col = "presc_date", ev_date_col = "ev_date_1",
-  ev_code_col = NULL, date_format)
+  presc_date_col = "presc_date_x", ev_date_col = "ev_date_1",
+  date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
@@ -16,7 +16,8 @@ records must contain at least a patient ID, drug ID, prescription date}
 \item{df2}{a data frame containing event dates - should contain at least
 patient IDs and an event date, can also include event codes}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{timeframe}{a number representing the length of the follow-up window. If
 0 as by default any prescriptions before or after (depending on the value
@@ -34,13 +35,10 @@ window. If FALSE, the value will be subtracted to generate a start date}
 the drug IDs}
 
 \item{presc_date_col}{a string, the name of the column in \code{df}
-containing}
+containing the date the drug was prescribed}
 
 \item{ev_date_col}{a string, the name of the column in \code{df2} containing
 the event dates}
-
-\item{ev_code_col}{a string, the name of the column in \code{df2} containing
-the event codes if present}
 
 \item{date_format}{a string, the format of the dates contained in \code{df}
 and \code{df2}}
@@ -59,7 +57,8 @@ before or after the event date, but a number of days can be entered to give a
 more specific timeframe.
 }
 \examples{
-\\code{}
-\\code{}
+uat_fixed_events(df = synth_presc, df2 = synth_events, drug = "SIMVASTATIN", forward = TRUE,
+drug_id_col = "approved_name", presc_date_col = "presc_date", ev_date_col = "event_1",
+date_format = "\%Y-\%m-\%d")
 
 }

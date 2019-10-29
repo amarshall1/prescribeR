@@ -6,13 +6,14 @@
 \usage{
 uat_fixed(df, drug, date_1, timeframe = 0, forward = TRUE,
   patient_id_col = "patient_id", drug_id_col = "drug_id",
-  presc_date_col = "presc_date", date_format)
+  presc_date_col = "presc_date_x", date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
 records must contain at least a patient ID, drug ID and prescription date}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{date_1}{a string containing a date to base the follow-up window on}
 
@@ -49,7 +50,10 @@ date provided, but a number of days can be entered to give a more specific
 timeframe.
 }
 \examples{
-\\code{uat_fixed(synth_presc, drug = "ATORVASTATIN", date_1 = "01/07/2020", drug_id_col = "approved_name", date_format = "\%d/\%m/\%Y")}
-\\code{uat_fixed(synth_presc, drug = "SIMVASTATIN", date_1 = "01/01/2021", timeframe = 180, forward = FALSE, drug_id_col = "approved_name", date_format = "\%d/\%m/\%Y")}
+uat_fixed(synth_presc, drug = "ATORVASTATIN", date_1 = "01/07/2020",
+drug_id_col = "approved_name", presc_date_col = "presc_date", date_format = "\%Y-\%m-\%d")
+uat_fixed(synth_presc, drug = "SIMVASTATIN", date_1 = "01/01/2021", timeframe = 180,
+forward = FALSE, drug_id_col = "approved_name", presc_date_col = "presc_date",
+date_format = "\%Y-\%m-\%d")
 
 }

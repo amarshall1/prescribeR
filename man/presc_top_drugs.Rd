@@ -4,11 +4,14 @@
 \alias{presc_top_drugs}
 \title{Produce a List of the Most Commonly Prescribed Drugs}
 \usage{
-presc_top_drugs(df, rank = 10, drug_id_col = "drug_id")
+presc_top_drugs(df, drug = "*", rank = 10, drug_id_col = "drug_id")
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
 records must contain at least a drug identifier}
+
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{rank}{the number of drugs to be included in the list}
 
@@ -25,7 +28,7 @@ of prescriptions for each, based on unique drug IDs. The number of results
 returned can be adjusted.
 }
 \examples{
-\\code{presc_top_drugs(synth_presc, drug_id_col = "approved_name")}
-\\code{presc_top_drugs(synth_presc, rank = 5, drug_id_col = "bnf_item_code")}
+presc_top_drugs(synth_presc, drug_id_col = "approved_name")
+presc_top_drugs(synth_presc, rank = 5, drug_id_col = "bnf_item_code")
 
 }

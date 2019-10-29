@@ -5,8 +5,8 @@
 \title{Determine Drug Persistence with Refill Gap and Coverage}
 \usage{
 refill_gap_dd(df, drug, gap, dd_factor = 1, threshold = 0,
-  stockpile = FALSE, patient_id_col = "patient_id",
-  drug_id_col = "drug_id", presc_date_col = "presc_date",
+  stockpile = FALSE, summary = FALSE, patient_id_col = "patient_id",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
   dd_disp_col = "dd_disp", date_format)
 }
 \arguments{
@@ -14,7 +14,8 @@ refill_gap_dd(df, drug, gap, dd_factor = 1, threshold = 0,
 records must contain at least a paitent ID, drug ID, a prescription date
 and a number of daily doses dispensed}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
 \item{gap}{a number, the length of the allowable gap in days between two
 prescriptions before the patient is considered to have discontinued use of
@@ -30,6 +31,9 @@ to be included in the results}
 \item{stockpile}{a logical, if TRUE the function will carry over leftover
 medication from one prescription period to the next when determining
 duration}
+
+\item{summary}{a logical, if TRUE the function will return a summary of all
+exposure periods instead of the individual periods}
 
 \item{patient_id_col}{a string, the name of the column in \code{df}
 containing the patient IDs}
@@ -62,7 +66,8 @@ function returns patient ID's and periods of exposure that are over the
 selected minimum length.
 }
 \examples{
-\\code{refill_gap_dd(refill_gap_dd(synth_presc, drug = "OMEPRAZOLE", gap = 30, drug_id_col = "approved_name", dd_disp_col = "ddd_dispensed", date_format = "\%d/\%m/\%Y"))}
-\\code{refill_gap_dd(synth_presc, drug = "CITALOPRAM", gap = 30, dd_factor = 1, threshold = 60, stockpile = TRUE, drug_id_col = "approved_name", dd_disp_col = "ddd_dispensed", date_format = "\%d/\%m/\%Y")}
+\dontrun{refill_gap_dd(synth_presc, drug = "SIMVASTATIN", gap = 30, stockpile = TRUE,
+drug_id_col = "approved_name", presc_date_col = "presc_date",
+dd_disp_col = "ddd_dispensed", date_format = "\%d/\%m/\%Y")}
 
 }

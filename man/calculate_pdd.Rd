@@ -4,25 +4,25 @@
 \alias{calculate_pdd}
 \title{Calculate Number of Prescribed Daily Doses Dispensed}
 \usage{
-calculate_pdd(df, drug, patient_id_col = "patient_id",
-  drug_id_col = "drug_id", qty_disp_col = "qty_disp",
-  qty_per_day_col = "qty_per_day")
+calculate_pdd(df, drug, drug_id_col = "drug_id",
+  qty_disp_col = "qty_disp", qty_per_day_col = "qty_per_day")
 }
 \arguments{
 \item{df}{a data frame containing prescribing records  to be analysed -
 records must contain at least a paitent ID, drug ID, a quantity dispensed
 and a quantity per day instruction}
 
-\item{drug}{a string corresponding to a drug identifier to be matched}
+\item{drug}{a string containing a drug ID to be used to limit the prescribing
+data to the drug(s) of interest, accepts regular expressions}
 
-\item{drug_id_col}{a string, the name of the column in \code{df} containing the
-drug IDs}
+\item{drug_id_col}{a string, the name of the column in \code{df} containing
+the drug IDs}
 
-\item{qty_disp_col}{a string, the name of the column in \code{df} containing the
-quantity of drug dispensed}
+\item{qty_disp_col}{a string, the name of the column in \code{df} containing
+the quantity of drug dispensed}
 
-\item{qty_per_day_col}{a string, the name of the column in \code{df} containing
-the quantity of drug to be taken per day}
+\item{qty_per_day_col}{a string, the name of the column in \code{df}
+containing the quantity of drug to be taken per day}
 }
 \value{
 a modified version of \code{df} containing records for the drug of
@@ -35,6 +35,7 @@ and the number of tablets dispensed, and adds this as a new column to the
 data frame.
 }
 \examples{
-\\code{}
+calculate_pdd(synth_presc, drug = "ATORVASTATIN",
+drug_id_col = "approved_name", qty_disp_col = "qty_dispensed")
 
 }
