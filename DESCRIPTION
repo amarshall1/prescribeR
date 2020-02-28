@@ -1,7 +1,7 @@
 Package: prescribeR
 Type: Package
 Title: Quantify Exposure Based On Routine Prescribing Data
-Version: 0.0.0.9000
+Version: 0.0.0.910
 Author: Alex Marshall [aut, cre]
 Maintainer: Alex Marshall <a.marshall.1@research.gla.ac.uk>
 Description: A package containing functions for quantifying drug exposure based

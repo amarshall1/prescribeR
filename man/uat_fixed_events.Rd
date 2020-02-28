@@ -4,20 +4,23 @@
 \alias{uat_fixed_events}
 \title{Use At Time Point, Fixed Range From Patient Event Date}
 \usage{
-uat_fixed_events(df, df2, drug, timeframe = 0, forward = TRUE,
-  patient_id_col = "patient_id", drug_id_col = "drug_id",
-  presc_date_col = "presc_date_x", ev_date_col = "ev_date_1",
-  date_format)
+uat_fixed_events(df, df2, drug, flatten = FALSE, timeframe = 0,
+  forward = TRUE, patient_id_col = "patient_id",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
+  ev_date_col = "ev_date_1", date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
 records must contain at least a patient ID, drug ID, prescription date}
 
-\item{df2}{a data frame containing event dates - should contain at least
-patient IDs and an event date, can also include event codes}
+\item{df2}{a data frame containing event dates - must contain at least
+patient IDs and an event date}
 
 \item{drug}{a string containing a drug ID to be used to limit the prescribing
 data to the drug(s) of interest, accepts regular expressions}
+
+\item{flatten}{logical, if TRUE the function will only count one record/
+prescription per drug ID per date}
 
 \item{timeframe}{a number representing the length of the follow-up window. If
 0 as by default any prescriptions before or after (depending on the value

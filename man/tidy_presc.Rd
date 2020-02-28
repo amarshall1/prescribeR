@@ -2,32 +2,39 @@
 % Please edit documentation in R/standardising.R
 \name{tidy_presc}
 \alias{tidy_presc}
-\title{Standardise Prescribing Data Field Names and Formats}
+\title{Standardise Input Data Field Names and Formats}
 \usage{
 tidy_presc(df, patient_id_col = NULL, drug_id_col = NULL,
   presc_date_col = NULL, dd_disp_col = NULL, qty_disp_col = NULL,
-  qty_per_day_col = NULL, date_format)
+  qty_per_day_col = NULL, ev_date_1_col = NULL, ev_date_2_col = NULL,
+  date_format)
 }
 \arguments{
-\item{df}{a data frame containing prescribing records}
+\item{df}{a data frame containing the data of interest}
 
-\item{patient_id_col}{a string, the name of the column in \code{df} containing
-the patient IDs}
+\item{patient_id_col}{a string, the name of the column in \code{df}
+containing the patient IDs}
 
-\item{drug_id_col}{a string, the name of the column in \code{df} containing the
-drug IDs}
+\item{drug_id_col}{a string, the name of the column in \code{df} containing
+the drug IDs}
 
-\item{presc_date_col}{a string, the name of the column in \code{df} containing
-the prescption date}
+\item{presc_date_col}{a string, the name of the column in \code{df}
+containing the prescption date}
 
-\item{dd_disp_col}{a string, the name of the column in \code{df} containing the
-number of daily doses dispensed}
+\item{dd_disp_col}{a string, the name of the column in \code{df} containing
+the number of daily doses dispensed}
 
-\item{qty_disp_col}{a string, the name of the column in \code{df} containing the
-quantity of drug dispensed}
+\item{qty_disp_col}{a string, the name of the column in \code{df} containing
+the quantity of drug dispensed}
 
-\item{qty_per_day_col}{a string, the name of the column in \code{df} containing
-the quantity of drug to be taken per day}
+\item{qty_per_day_col}{a string, the name of the column in \code{df}
+containing the quantity of drug to be taken per day}
+
+\item{ev_date_1_col}{a string, the name of the column containing the first
+event dates}
+
+\item{ev_date_2_col}{a string, the name of the column containing the second
+event dates if present}
 
 \item{date_format}{a string, the format of the dates in \code{df}}
 }
@@ -35,20 +42,18 @@ the quantity of drug to be taken per day}
 a data frame with standardised field names and formats
 }
 \description{
-Adjusts the field names and data formats of prescribing data to create a data
-frame in a format suited for use with the other functions in this package -
-mostly called internally by the other functions in this package, but can be
-used directly  by the user to reduce the number of arguments which need to be
-passed to other functions as these standardised values are inluded as the
-default values in their code.
+Adjusts the field names and data formats of prescribing and events data to
+create a data frame in a format suited for use with the other functions in
+this package - mostly called internally by the other functions in this
+package, but can be used directly  by the user to reduce the number of
+arguments which need to be passed to other functions as these standardised
+values are inluded as the default values in their code.
 }
 \examples{
 tidy_synth <- tidy_presc(df = synth_presc, drug_id_col = "approved_name",
  dd_disp_col = "ddd_dispensed", qty_disp_col = "qty_dispensed",
  date_format = "\%Y-\%m-\%d")
-tidy_synth <- tidy_presc(synth_presc, patient_id_col = "patient_id",
-drug_id_col = "approved_name", presc_date_col = "presc_date",
-dd_disp_col = "ddd_dispensed", qty_disp_col = "qty_dispensed",
-qty_per_day_col = "qty_per_day")
+tidy_synth <- tidy_presc(synth_events, patient_id = "patient_id",
+ev_date_1 = "start_date")
 
 }

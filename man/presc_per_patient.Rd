@@ -4,7 +4,7 @@
 \alias{presc_per_patient}
 \title{Prescriptions Per Patient Summary Statistics}
 \usage{
-presc_per_patient(df, drug = "*", patient_id_col = "patient_id",
+presc_per_patient(df, drug = ".", patient_id_col = "patient_id",
   drug_id_col = "drug_id")
 }
 \arguments{

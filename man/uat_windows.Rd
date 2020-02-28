@@ -15,7 +15,8 @@ uat_windows(df, df2, drug, individual = FALSE, timeframe,
 records must contain at least a patient ID, drug ID, prescription date}
 
 \item{df2}{a data frame containing event data to be analysed, records must
-contain at least two event dates (\code{ev_date_1} and \code{ev_date_2})}
+contain at least two event dates (\code{ev_date_1} and \code{ev_date_2})
+representing the start and end dates of follow-up for each patient}
 
 \item{drug}{a string containing a drug ID to be used to limit the prescribing
 data to the drug(s) of interest, accepts regular expressions}

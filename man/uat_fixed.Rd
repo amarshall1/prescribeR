@@ -4,9 +4,10 @@
 \alias{uat_fixed}
 \title{Use at Time Point, Fixed Date Range}
 \usage{
-uat_fixed(df, drug, date_1, timeframe = 0, forward = TRUE,
-  patient_id_col = "patient_id", drug_id_col = "drug_id",
-  presc_date_col = "presc_date_x", date_format)
+uat_fixed(df, drug, date_1, flatten = FALSE, timeframe = 0,
+  forward = TRUE, patient_id_col = "patient_id",
+  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
+  date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
@@ -16,6 +17,9 @@ records must contain at least a patient ID, drug ID and prescription date}
 data to the drug(s) of interest, accepts regular expressions}
 
 \item{date_1}{a string containing a date to base the follow-up window on}
+
+\item{flatten}{logical, if TRUE the function will only count one record/
+prescription per drug ID per date}
 
 \item{timeframe}{a number representing the length of the follow-up window. If
 0 as by default any prescriptions before or after (depending on the value

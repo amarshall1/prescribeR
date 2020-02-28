@@ -35,26 +35,36 @@
 #' drug_id_col = "approved_name", presc_date_col = "presc_date",
 #' dd_disp_col = "ddd_dispensed", date_format = "%Y-%m-%d")
 #'
-dd_sum <- function(df, drug, threshold = 1,
-                   patient_id_col = "patient_id", drug_id_col = "drug_id",
-                   presc_date_col = "presc_date_x", dd_disp_col = "dd_disp",
-                   date_format){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
-                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
-                        date_format = date_format)
+dd_sum <- function(df,
+                   drug,
+                   threshold = 1,
+                   patient_id_col = "patient_id",
+                   drug_id_col = "drug_id",
+                   presc_date_col = "presc_date_x",
+                   dd_disp_col = "dd_disp",
+                   date_format) {
+  tidy_df <-
+    tidy_presc(
+      df,
+      patient_id_col = patient_id_col,
+      drug_id_col = drug_id_col,
+      presc_date_col = presc_date_col,
+      dd_disp_col = dd_disp_col,
+      date_format = date_format
+    )
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
     dplyr::group_by(.data$patient_id) %>%
-    dplyr::summarise(n_presc = dplyr::n(),
-              total_dds = sum(.data$dd_disp),
-              first_presc = min(.data$presc_date_x)) %>%
+    dplyr::summarise(
+      n_presc = dplyr::n(),
+      total_dds = sum(.data$dd_disp),
+      first_presc = min(.data$presc_date_x)
+    ) %>%
     dplyr::filter(.data$total_dds >= threshold)
   return(dd1)
 }
 
-#Still need to add a date range restriction to this function - fixed date ranges
-#or individual date ranges?
 
 
 #' Calculate Prescription Durations
@@ -93,18 +103,30 @@ dd_sum <- function(df, drug, threshold = 1,
 #' drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
 #' dd_disp_col = "ddd_dispensed", date_format = "%Y-%m-%d")
 #'
-dd_duration <- function(df, drug, dd_factor = 1,
-                        patient_id_col = "patient_id", drug_id_col = "drug_id",
-                        presc_date_col = "presc_date_x", dd_disp_col = "dd_disp",
-                        date_format){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
-                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
-                        date_format = date_format)
+dd_duration <- function(df,
+                        drug,
+                        dd_factor = 1,
+                        patient_id_col = "patient_id",
+                        drug_id_col = "drug_id",
+                        presc_date_col = "presc_date_x",
+                        dd_disp_col = "dd_disp",
+                        date_format) {
+  tidy_df <-
+    tidy_presc(
+      df,
+      patient_id_col = patient_id_col,
+      drug_id_col = drug_id_col,
+      presc_date_col = presc_date_col,
+      dd_disp_col = dd_disp_col,
+      date_format = date_format
+    )
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
-    dplyr::mutate(duration = floor(.data$dd_disp * dd_factor),
-           end_date = .data$presc_date_x + floor(.data$dd_disp * dd_factor))
+    dplyr::mutate(
+      duration = floor(.data$dd_disp * dd_factor),
+      end_date = .data$presc_date_x + floor(.data$dd_disp * dd_factor)
+    )
 }
 
 
@@ -139,15 +161,20 @@ dd_duration <- function(df, drug, dd_factor = 1,
 #' calculate_pdd(synth_presc, drug = "ATORVASTATIN",
 #' drug_id_col = "approved_name", qty_disp_col = "qty_dispensed")
 #'
-calculate_pdd <- function(df, drug,
-                          drug_id_col = "drug_id", qty_disp_col = "qty_disp",
-                          qty_per_day_col = "qty_per_day"){
-  tidy_df <- tidy_presc(df, drug_id_col = drug_id_col,
-                        qty_disp_col = qty_disp_col, qty_per_day_col = qty_per_day_col)
+calculate_pdd <- function(df,
+                          drug,
+                          drug_id_col = "drug_id",
+                          qty_disp_col = "qty_disp",
+                          qty_per_day_col = "qty_per_day") {
+  tidy_df <- tidy_presc(
+    df,
+    drug_id_col = drug_id_col,
+    qty_disp_col = qty_disp_col,
+    qty_per_day_col = qty_per_day_col
+  )
   dd1 <- tidy_df %>%
     dplyr::filter(grepl(drug, .data$drug_id))
   dd1 <- dd1 %>%
-    dplyr::mutate(pdd_disp = .data$qty_disp/.data$qty_per_day)
+    dplyr::mutate(pdd_disp = .data$qty_disp / .data$qty_per_day)
   return(dd1)
 }
-

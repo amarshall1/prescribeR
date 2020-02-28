@@ -4,7 +4,7 @@
 \alias{presc_top_drugs}
 \title{Produce a List of the Most Commonly Prescribed Drugs}
 \usage{
-presc_top_drugs(df, drug = "*", rank = 10, drug_id_col = "drug_id")
+presc_top_drugs(df, drug = ".", rank = 10, drug_id_col = "drug_id")
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -

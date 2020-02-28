@@ -2,11 +2,11 @@
 % Please edit documentation in R/summaries.R
 \name{presc_data_summary}
 \alias{presc_data_summary}
-\title{Prescription and Patient Counts and Date Range}
+\title{Prescription dataset summary}
 \usage{
-presc_data_summary(df, drug = "*", patient_id_col = "patient_id",
-  drug_id_col = "drug_id", presc_date_col = "presc_date_x",
-  date_format)
+presc_data_summary(df, drug = ".", summary = TRUE,
+  patient_id_col = "patient_id", drug_id_col = "drug_id",
+  presc_date_col = "presc_date_x", date_format)
 }
 \arguments{
 \item{df}{a data frame containing prescribing records to be analysed -
@@ -15,6 +15,9 @@ prescription date}
 
 \item{drug}{a string containing a drug ID to be used to limit the prescribing
 data to the drug(s) of interest, accepts regular expressions}
+
+\item{summary}{logical, if FALSE returns data on individual patients, if TRUE
+returns summary values}
 
 \item{patient_id_col}{a string, the name of the column in \code{df}
 containing the patient IDs}
@@ -28,20 +31,21 @@ containing the prescption date}
 \item{date_format}{a string, the format of the dates in \code{df}}
 }
 \value{
-a data frame containing the number of prescriptions, number of
-  patients and the first and last prescription dates for the chosen data
-  frame
+a data frame containing either a per patient summary of the data or a
+  summary of the whole dataset, depending on the fvalue of \code{summary}
 }
 \description{
-Function produces a high-level summary of a data frame, containin the number
-of patients and prescriptions in the data and the date range of the
-prescriptions. Can either be used to obtain a summary of all prescriptions,
-or limited to a drug or drugs of interest
+Function produces a high-level summary of a data frame, either the number of
+prescriptions and date of the first and last prescription for each patient or
+the total number of prescriptions and patients, the median and IQR
+prescriptions per patient and the dates of the first and last prescriptions
+across the data
 }
 \examples{
-presc_data_summary(synth_presc, drug_id_col = "approved_name",
+presc_data_summary(synth_presc, summary = FALSE, drug_id_col = "approved_name",
 presc_date_col = "presc_date", date_format = "\%Y-\%m-\%d")
-presc_data_summary(synth_presc, drug = "SIMVASTATIN", drug_id_col = "approved_name",
+presc_data_summary(synth_presc, drug = "SIMVASTATIN", summary = TRUE,
+drug_id_col = "approved_name",
 presc_date_col = "presc_date", date_format = "\%Y-\%m-\%d")
 
 }

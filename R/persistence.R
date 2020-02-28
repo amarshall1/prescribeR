@@ -43,55 +43,81 @@
 #' drug_id_col = "bnf_paragraph", presc_date_col = "presc_date",
 #' date_format = "%d/%m/%Y")
 #'
-refill_gap <- function(df, drug, gap, threshold = 0, summary = FALSE,
-                       patient_id_col = "patient_id", drug_id_col = "drug_id",
-                       presc_date_col = "presc_date_x", date_format){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
-                        presc_date_col = presc_date_col, date_format = date_format)
-  pers1 <- tidy_df %>%
-    dplyr::filter(grepl(drug, .data$drug_id))
-  pers1 <- pers1 %>%
-    dplyr::group_by(.data$patient_id) %>%
-    dplyr::arrange(.data$patient_id, .data$presc_date_x) %>%
-    dplyr::mutate(difference = c(0, diff(.data$presc_date_x)))
-  pers1 <- dplyr::mutate(pers1, terminated = ifelse(.data$difference > gap, 1, 0))
-  pers1 <- pers1 %>%
-    dplyr::group_by(.data$patient_id) %>%
-    dplyr::mutate(period = cumsum(.data$terminated)) %>%
-    dplyr::select(.data$patient_id, .data$presc_date_x, .data$difference, .data$terminated, .data$period)
-  pers1 <- pers1 %>%
-    dplyr::group_by(.data$patient_id, .data$period) %>%
-    dplyr::summarise(first_presc = min(.data$presc_date_x),
-                     last_presc = max(.data$presc_date_x),
-                     end_date = max(.data$presc_date_x) + gap,
-                     n_presc = dplyr::n(),
-                     length_of_exposure = (max(.data$presc_date_x) - min(.data$presc_date_x)) + gap)
-  if(threshold == 0 & summary == FALSE){
-    return(pers1)
-  } else if(threshold != 0 & summary == FALSE){
-    pers2 <- pers1 %>%
-      dplyr::filter(.data$length_of_exposure >= threshold)
-    return(pers2)
-  } else if(threshold == 0 & summary == TRUE){
-    pers2 <- pers1 %>%
+refill_gap <-
+  function(df,
+           drug,
+           gap,
+           threshold = 0,
+           summary = FALSE,
+           patient_id_col = "patient_id",
+           drug_id_col = "drug_id",
+           presc_date_col = "presc_date_x",
+           date_format) {
+    tidy_df <-
+      tidy_presc(
+        df,
+        patient_id_col = patient_id_col,
+        drug_id_col = drug_id_col,
+        presc_date_col = presc_date_col,
+        date_format = date_format
+      )
+    pers1 <- tidy_df %>%
+      dplyr::filter(grepl(drug, .data$drug_id))
+    pers1 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
-      dplyr::summarise(n_periods = dplyr::n(),
-                       total_n_presc = sum(.data$n_presc),
-                       first_presc = min(.data$first_presc),
-                       last_presc = max(.data$last_presc),
-                       total_length = sum(.data$length_of_exposure))
-  } else if(threshold != 0 & summary == TRUE){
-    pers2 <- pers1 %>%
+      dplyr::arrange(.data$patient_id, .data$presc_date_x) %>%
+      dplyr::mutate(difference = c(0, diff(.data$presc_date_x)))
+    pers1 <-
+      dplyr::mutate(pers1, terminated = ifelse(.data$difference > gap, 1, 0))
+    pers1 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
-      dplyr::summarise(n_periods = dplyr::n(),
-                       total_n_presc = sum(.data$n_presc),
-                       first_presc = min(.data$first_presc),
-                       last_presc = max(.data$last_presc),
-                       total_length = sum(.data$length_of_exposure))
-    pers2 <- pers2 %>%
-      dplyr::filter(.data$total_length >= threshold)
+      dplyr::mutate(period = cumsum(.data$terminated)) %>%
+      dplyr::select(
+        .data$patient_id,
+        .data$presc_date_x,
+        .data$difference,
+        .data$terminated,
+        .data$period
+      )
+    pers1 <- pers1 %>%
+      dplyr::group_by(.data$patient_id, .data$period) %>%
+      dplyr::summarise(
+        first_presc = min(.data$presc_date_x),
+        last_presc = max(.data$presc_date_x),
+        end_date = max(.data$presc_date_x) + gap,
+        n_presc = dplyr::n(),
+        duration = (max(.data$presc_date_x) - min(.data$presc_date_x)) + gap
+      )
+    if (threshold == 0 & summary == FALSE) {
+      return(pers1)
+    } else if (threshold != 0 & summary == FALSE) {
+      pers2 <- pers1 %>%
+        dplyr::filter(.data$duration >= threshold)
+      return(pers2)
+    } else if (threshold == 0 & summary == TRUE) {
+      pers2 <- pers1 %>%
+        dplyr::group_by(.data$patient_id) %>%
+        dplyr::summarise(
+          n_periods = dplyr::n(),
+          total_n_presc = sum(.data$n_presc),
+          first_presc = min(.data$first_presc),
+          last_presc = max(.data$last_presc),
+          total_length = sum(.data$duration)
+        )
+    } else if (threshold != 0 & summary == TRUE) {
+      pers2 <- pers1 %>%
+        dplyr::group_by(.data$patient_id) %>%
+        dplyr::summarise(
+          n_periods = dplyr::n(),
+          total_n_presc = sum(.data$n_presc),
+          first_presc = min(.data$first_presc),
+          last_presc = max(.data$last_presc),
+          total_length = sum(.data$duration)
+        )
+      pers2 <- pers2 %>%
+        dplyr::filter(.data$total_length >= threshold)
+    }
   }
-}
 
 
 
@@ -149,72 +175,101 @@ refill_gap <- function(df, drug, gap, threshold = 0, summary = FALSE,
 #' drug_id_col = "approved_name", presc_date_col = "presc_date",
 #' dd_disp_col = "ddd_dispensed", date_format = "%d/%m/%Y")}
 #'
-refill_gap_dd <- function(df, drug, gap, dd_factor = 1,
-                          threshold = 0, stockpile = FALSE, summary = FALSE,
-                          patient_id_col = "patient_id", drug_id_col = "drug_id",
-                          presc_date_col = "presc_date_x", dd_disp_col = "dd_disp",
-                          date_format){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
-                        presc_date_col = presc_date_col, dd_disp_col = dd_disp_col,
-                        date_format = date_format)
+refill_gap_dd <- function(df,
+                          drug,
+                          gap,
+                          dd_factor = 1,
+                          threshold = 0,
+                          stockpile = FALSE,
+                          summary = FALSE,
+                          patient_id_col = "patient_id",
+                          drug_id_col = "drug_id",
+                          presc_date_col = "presc_date_x",
+                          dd_disp_col = "dd_disp",
+                          date_format) {
+  tidy_df <-
+    tidy_presc(
+      df,
+      patient_id_col = patient_id_col,
+      drug_id_col = drug_id_col,
+      presc_date_col = presc_date_col,
+      dd_disp_col = dd_disp_col,
+      date_format = date_format
+    )
   pers1 <- tidy_df %>%
     dd_duration(drug = drug, dd_factor = dd_factor)
-  if(stockpile == FALSE){
+  if (stockpile == FALSE) {
     pers1 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
       dplyr::arrange(.data$patient_id, .data$presc_date_x) %>%
       dplyr::mutate(difference = as.numeric(.data$presc_date_x - dplyr::lag(.data$end_date)))
     pers1$difference[is.na(pers1$difference)] <- 0
-  } else if(stockpile == TRUE){
+  } else if (stockpile == TRUE) {
     pers1 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
       dplyr::arrange(.data$patient_id, .data$presc_date_x) %>%
       dplyr::mutate(stockpile = dplyr::if_else((dplyr::lag(.data$end_date) > .data$presc_date_x),
-                                       as.numeric(dplyr::lag(.data$end_date) - .data$presc_date_x), 0))
+                                               as.numeric(dplyr::lag(.data$end_date) - .data$presc_date_x),
+                                               0
+      ))
     pers1$stockpile[is.na(pers1$stockpile)] <- 0
     pers1 <- pers1 %>%
       dplyr::mutate(end_date = .data$presc_date_x + (.data$duration + .data$stockpile)) %>%
       dplyr::mutate(difference = as.numeric(.data$presc_date_x - dplyr::lag(.data$end_date)))
     pers1$difference[is.na(pers1$difference)] <- 0
   }
-  pers1 <- dplyr::mutate(pers1, terminated = dplyr::if_else(.data$difference > gap, 1, 0))
+  pers1 <-
+    dplyr::mutate(pers1, terminated = dplyr::if_else(.data$difference > gap, 1, 0))
   pers1 <- pers1 %>%
     dplyr::group_by(.data$patient_id) %>%
     dplyr::mutate(period = cumsum(.data$terminated)) %>%
-    dplyr::select(.data$patient_id, .data$presc_date_x, .data$end_date,
-                  .data$dd_disp, .data$difference, .data$terminated, .data$period)
+    dplyr::select(
+      .data$patient_id,
+      .data$presc_date_x,
+      .data$end_date,
+      .data$dd_disp,
+      .data$difference,
+      .data$terminated,
+      .data$period
+    )
   pers1 <- pers1 %>%
     dplyr::group_by(.data$patient_id, .data$period) %>%
-    dplyr::summarise(first_presc = min(.data$presc_date_x),
-                     last_presc = max(.data$presc_date_x),
-                     end_date = max(.data$end_date) + gap,
-                     n_presc = dplyr::n(),
-                     length_of_exposure = as.numeric(max(.data$end_date) - min(.data$presc_date_x)) + gap)
-  if(threshold == 0 & summary == FALSE){
+    dplyr::summarise(
+      first_presc = min(.data$presc_date_x),
+      last_presc = max(.data$presc_date_x),
+      end_date = max(.data$end_date) + gap,
+      n_presc = dplyr::n(),
+      duration = as.numeric(max(.data$end_date) - min(.data$presc_date_x)) + gap
+    )
+  if (threshold == 0 & summary == FALSE) {
     return(pers1)
-  } else if(threshold != 0 & summary == FALSE){
+  } else if (threshold != 0 & summary == FALSE) {
     pers2 <- pers1 %>%
-      dplyr::filter(.data$length_of_exposure >= threshold)
+      dplyr::filter(.data$duration >= threshold)
     return(pers2)
-  } else if(threshold == 0 & summary == TRUE){
+  } else if (threshold == 0 & summary == TRUE) {
     pers2 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
-      dplyr::summarise(n_periods = dplyr::n(),
-                       total_n_presc = sum(.data$n_presc),
-                       first_presc = min(.data$first_presc),
-                       last_presc = max(.data$last_presc),
-                       end_of_exposure = max(.data$end_date),
-                       total_length = sum(.data$length_of_exposure))
-  } else if(threshold != 0 & summary == TRUE){
+      dplyr::summarise(
+        n_periods = dplyr::n(),
+        total_n_presc = sum(.data$n_presc),
+        first_presc = min(.data$first_presc),
+        last_presc = max(.data$last_presc),
+        end_of_exposure = max(.data$end_date),
+        total_length = sum(.data$duration)
+      )
+  } else if (threshold != 0 & summary == TRUE) {
     pers2 <- pers1 %>%
       dplyr::group_by(.data$patient_id) %>%
-      dplyr::summarise(n_periods = dplyr::n(),
-                       total_n_presc = sum(.data$n_presc),
-                       first_presc = min(.data$first_presc),
-                       last_presc = max(.data$last_presc),
-                       end_of_exposure = max(.data$end_date),
-                       total_length = sum(.data$length_of_exposure))
+      dplyr::summarise(
+        n_periods = dplyr::n(),
+        total_n_presc = sum(.data$n_presc),
+        first_presc = min(.data$first_presc),
+        last_presc = max(.data$last_presc),
+        end_of_exposure = max(.data$end_date),
+        total_length = sum(.data$duration)
+      )
     pers2 <- pers2 %>%
       dplyr::filter(.data$total_length >= threshold)
   }
- }
+}

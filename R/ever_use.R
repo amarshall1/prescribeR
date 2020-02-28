@@ -43,41 +43,52 @@
 #' presc_date_col = "presc_date", date_format = "%Y-%m-%d")
 #'
 
-ever_use <- function(df, drug, flatten = FALSE, threshold = 1, summary = FALSE, return_all = FALSE,
-                     patient_id_col = "patient_id", drug_id_col = "drug_id",
-                     presc_date_col = "presc_date_x", date_format){
-  tidy_df <- tidy_presc(df, patient_id_col = patient_id_col, drug_id_col = drug_id_col,
-                        presc_date_col = presc_date_col, date_format = date_format)
-  ids <- tidy_df %>%
-    dplyr::select(.data$patient_id) %>%
-    dplyr::distinct()
-  ever1 <- tidy_df %>%
-    dplyr::filter(grepl(drug, .data$drug_id))
-  if(flatten == TRUE){
+ever_use <-
+  function(df,
+           drug,
+           flatten = FALSE,
+           threshold = 1,
+           summary = FALSE,
+           return_all = FALSE,
+           patient_id_col = "patient_id",
+           drug_id_col = "drug_id",
+           presc_date_col = "presc_date_x",
+           date_format) {
+    tidy_df <-
+      tidy_presc(
+        df,
+        patient_id_col = patient_id_col,
+        drug_id_col = drug_id_col,
+        presc_date_col = presc_date_col,
+        date_format = date_format
+      )
+    ids <- tidy_df %>%
+      dplyr::select(.data$patient_id) %>%
+      dplyr::distinct()
+    ever1 <- tidy_df %>%
+      dplyr::filter(grepl(drug, .data$drug_id))
+    if (flatten == TRUE) {
+      ever1 <- ever1 %>%
+        dplyr::distinct(.data$patient_id, .data$drug_id, .data$presc_date_x)
+    }
     ever1 <- ever1 %>%
-      dplyr::distinct(.data$patient_id, .data$drug_id, .data$presc_date_x)
+      dplyr::group_by(.data$patient_id) %>%
+      dplyr::summarise(n_presc = dplyr::n(),
+                       first_presc = min(.data$presc_date_x)) %>%
+      dplyr::mutate(exposed = ifelse(.data$n_presc >= threshold, 1, 0))
+    if (return_all == FALSE) {
+      ever1 <- ever1 %>%
+        dplyr::filter(.data$exposed == 1)
+    } else if (return_all == TRUE) {
+      ever1 <- dplyr::left_join(ids, ever1, by = "patient_id")
+      ever1$n_presc[is.na(ever1$n_presc)] <- 0
+      ever1$exposed[is.na(ever1$exposed)] <- 0
+    }
+    if (summary == TRUE) {
+      return(ever1)
+    } else if (summary == FALSE) {
+      ever1 <- ever1 %>%
+        dplyr::select(.data$patient_id, .data$exposed)
+      return(ever1)
+    }
   }
-  ever1 <- ever1 %>%
-    dplyr::group_by(.data$patient_id) %>%
-    dplyr::summarise(n_presc = dplyr::n(),
-                     first_presc = min(.data$presc_date_x)) %>%
-    dplyr::mutate(exposed = ifelse(.data$n_presc >= threshold, 1, 0))
-  if(return_all == FALSE){
-    ever1 <- ever1 %>%
-      dplyr::filter(.data$exposed == 1)
-  } else if(return_all == TRUE){
-    ever1 <- dplyr::left_join(ids, ever1, by = "patient_id")
-    ever1$n_presc[is.na(ever1$n_presc)] <- 0
-    ever1$exposed[is.na(ever1$exposed)] <- 0
-  }
-  if(summary == TRUE){
-    return(ever1)
-  } else if(summary == FALSE){
-    ever1 <- ever1 %>%
-      dplyr::select(.data$patient_id, .data$exposed)
-    return(ever1)
-  }
-}
-
-
-
